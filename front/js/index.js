@@ -7,39 +7,22 @@ const getKanap = async () => {
   return kanaps.json();
 };
 
-// function pour créer la card et afficher les infos
-const createCard = async () => {
+const createCardHtml = async () => {
   console.log("function create card");
   await getKanap().then((kanap) => {
     for (let i = 0; i < kanap.length; i++) {
       // créer <a> + insérer à l'enfant de section
-      let card = document.createElement("a");
-      document.getElementById("items").appendChild(card);
-      card.href = `product.html?id=${kanap[i]._id}`;
-
-      // créer <article>
-      let kanapBody = document.createElement("article");
-      card.appendChild(kanapBody);
-
-      // créer <img>
-      let kanapImg = document.createElement("img");
-      kanapBody.appendChild(kanapImg);
-      kanapImg.src = kanap[i].imageUrl;
-      kanapImg.alt = kanap[i].altTxt;
-
-      // créer <h3>
-      let kanapTitle = document.createElement("h3");
-      kanapBody.appendChild(kanapTitle);
-      kanapTitle.classList.add("kanapTitle");
-      kanapTitle.innerHTML = kanap[i].name;
-
-      // créer <p>
-      let kanapDesc = document.createElement("p");
-      kanapBody.appendChild(kanapDesc);
-      kanapDesc.classList.add("kanapTitle");
-      kanapDesc.innerHTML = kanap[i].description;
+      const elemCard = `<a href="./product.html?id=${kanap[i]._id}">
+    <article>
+      <img src="${kanap[i].imageUrl}" alt="${kanap[i].altTxt}">
+      <h3 class="productName">${kanap[i].name}</h3>
+      <p class="productDescription">${kanap[i].description}</p>
+    </article>
+    </a>`;
+      const elem = document.getElementById("items");
+      elem.insertAdjacentHTML("beforeend", elemCard);
     }
   });
 };
 
-createCard();
+createCardHtml();

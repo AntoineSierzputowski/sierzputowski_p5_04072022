@@ -1,37 +1,42 @@
 const idProduct = new URL(window.location.href).searchParams.get("id");
 const apiUrl = "http://localhost:3000/api/products/";
 
-const getKanap = async () => {
-  var kanap = await fetch(apiUrl + idProduct);
-  return kanap.json();
-};
-
-// function pour créer la card et afficher les infos
-let nameProduct = document.getElementById("title");
+let titleProduct = document.getElementById("title");
 let priceProduct = document.getElementById("price");
-let descProduct = document.getElementById("description");
+let descriptionProduct = document.getElementById("description");
 let colorsProduct = document.getElementById("colors");
 let imgProduct = document.querySelector(".item__img");
 let img = document.createElement("img");
 imgProduct.appendChild(img);
 
-const createCard = async () => {
-  await getKanap().then((kanap) => {
-    img.setAttribute("src", kanap.imageUrl);
-    img.setAttribute("alt", kanap.altTxt);
-    nameProduct.innerHTML = kanap.name;
-    priceProduct.innerHTML = kanap.price;
-    descProduct.innerHTML = kanap.description;
-    document.title = kanap.name;
+console.log("getARtcile");
+async function getKanap() {
+  await fetch(apiUrl + idProduct)
+    .then((product) => product.json())
+    .then((product) => {
+      img.setAttribute("src", product.imageUrl);
+      img.setAttribute("alt", product.altTxt);
+      titleProduct.innerHTML = product.name;
+      priceProduct.innerHTML = product.price;
+      descriptionProduct.innerHTML = product.description;
+      document.title = product.name;
 
-    for (let i = 0; i < kanap.colors.length; i++) {
-      let color = document.createElement("option");
-      color.setAttribute("color", kanap.colors[i]);
-      color.innerHTML = kanap.colors[i];
-      colorsProduct.appendChild(color);
-    }
-  });
-};
-createCard();
-
+      for (let i = 0; i < product.colors.length; i++) {
+        let color = document.createElement("option");
+        color.setAttribute("value", product.colors[i]);
+        color.innerHTML = product.colors[i];
+        colorsProduct.appendChild(color);
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      const article = document.querySelector("article");
+      article.remove();
+      function errorimg() {
+        window.location.href = "./index.html";
+      }
+      errorimg();
+    });
+}
+getKanap();
 // gerer redirection mauvais ID
