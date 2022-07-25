@@ -7,29 +7,33 @@ if (!kanapList) {
   document.querySelector(".cart").remove();
 } else {
   for (let i = 0; i < kanapList.length; i++) {
-    const panierCard = ` <article class="cart__item" data-id="{${kanapList[i].idKanap}}" data-color="{${kanapList[i].colorKanap}}">
-    <div class="cart__item__img">
-      <img src="${kanapList[i].imgKanap}" alt="Photographie d'un canapé">
-    </div>
-    <div class="cart__item__content">
-      <div class="cart__item__content__description">
-        <h2>${kanapList[i].nameKanap}</h2>
-        <p>${kanapList[i].colorKanap}</p>
-        <p>${kanapList[i].priceKanap} €</p>
-      </div>
-      <div class="cart__item__content__settings">
-        <div class="cart__item__content__settings__quantity">
-          <p>Qté :${kanapList[i].qtyKanap} </p>
-          <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${kanapList[i].qtyKanap}">
+    fetch("http://localhost:3000/api/products/" + kanapList[i].idKanap)
+      .then((response) => response.json())
+      .then((data) => {
+        const panierCard = ` <article class="cart__item" data-id="{${kanapList[i].idKanap}}" data-color="{${kanapList[i].colorKanap}}">
+        <div class="cart__item__img">
+          <img src="${data.imageUrl}" alt="Photographie d'un canapé">
         </div>
-        <div class="cart__item__content__settings__delete">
-          <p class="deleteItem">Supprimer</p>
+        <div class="cart__item__content">
+          <div class="cart__item__content__description">
+            <h2>${kanapList[i].nameKanap}</h2>
+            <p>${kanapList[i].colorKanap}</p>
+            <p>${kanapList[i].priceKanap} €</p>
+          </div>
+          <div class="cart__item__content__settings">
+            <div class="cart__item__content__settings__quantity">
+              <p>Qté :${kanapList[i].qtyKanap} </p>
+              <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${kanapList[i].qtyKanap}">
+            </div>
+            <div class="cart__item__content__settings__delete">
+              <p class="deleteItem">Supprimer</p>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  </article>`;
-    const elem = document.querySelector(".cart");
-    elem.insertAdjacentHTML("afterbegin", panierCard);
+      </article>`;
+        const elem = document.querySelector(".cart");
+        elem.insertAdjacentHTML("afterbegin", panierCard);
+      });
   }
 }
 
@@ -46,6 +50,7 @@ const deleteButton = document.querySelector(".deleteItem");
 deleteButton.addEventListener("mousedown", deleteKanap);
 
 // formulaire
+// ------------------------------------
 
 // function error
 const errorPrenom = () => {
@@ -151,7 +156,8 @@ const postForm = () => {
 };
 
 const order = document.getElementById("order");
-order.addEventListener("click", () => {
+order.addEventListener("click", (e) => {
+  e.preventDefault();
   postForm();
 });
 

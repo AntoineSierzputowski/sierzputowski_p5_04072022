@@ -59,23 +59,13 @@ function addToCart() {
     // si ls est vide --> on rajoute le kanap dans le ls
     else {
       let productCart = [];
-
-      let idKanap = idProduct;
-      let nameKanap = document.querySelector("#title").textContent;
       let colorKanap = document.querySelector("#colors").value;
       let qtyKanap = document.querySelector("#quantity").value;
-      let imgKanap = img.src;
-      let altImg = img.alt;
-      let priceKanap = document.querySelector("#price").textContent;
 
       let productCartObj = {
         idKanap: idProduct,
-        nameKanap: nameKanap,
         colorKanap: colorKanap,
         qtyKanap: qtyKanap,
-        imgKanap: imgKanap,
-        altImg: altImg,
-        priceKanap: priceKanap,
       };
 
       productCart.push(productCartObj);
