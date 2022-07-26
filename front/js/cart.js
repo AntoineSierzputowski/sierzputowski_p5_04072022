@@ -16,9 +16,9 @@ if (!kanapList) {
         </div>
         <div class="cart__item__content">
           <div class="cart__item__content__description">
-            <h2>${kanapList[i].nameKanap}</h2>
+            <h2>${data.name}</h2>
             <p>${kanapList[i].colorKanap}</p>
-            <p>${kanapList[i].priceKanap} €</p>
+            <p>${data.price} €</p>
           </div>
           <div class="cart__item__content__settings">
             <div class="cart__item__content__settings__quantity">
@@ -41,18 +41,24 @@ if (!kanapList) {
 }
 
 // ----- update le cart
-
-const deleteKanap = () => {
-  alert("ok");
-};
-
-const deleteButton = document.querySelector(".deleteItem");
-deleteButton.addEventListener("mousedown", deleteKanap);
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("dom loaded");
+  const deleteFunction = () => {
+    function displayDate() {
+      alert("ok !");
+    }
+    let deleteButton = document.querySelectorAll(
+      ".cart__item__content__settings__delete p"
+    )[0];
+    deleteButton.addEventListener("click", displayDate);
+  };
+  deleteFunction();
+});
 
 // formulaire
 // ------------------------------------
 
-// function error
+// function error ------------------------------------
 const errorPrenom = () => {
   console.log("errorPrenom !!!");
   const errorMsgPrenom = document.getElementById("firstNameErrorMsg");
@@ -90,17 +96,20 @@ const postRequest = () => {
   let ville = form.city.value;
   var email = form.email.value;
 
-  var dataForm = {
-    prenom: prenom,
-    nom: nom,
-    adresse: adresse,
-    ville: ville,
+  var contact = {
+    firstName: prenom,
+    lastName: nom,
+    address: adresse,
+    city: ville,
     email: email,
   };
 
+  var products = JSON.parse(localStorage.getItem("cart"));
+
   fetch("http://localhost:3000/api/products/order", {
     method: "POST",
-    body: JSON.stringify(dataForm),
+    body: JSON.stringify(contact),
+    products,
     headers: {
       "Content-Type": "application/json",
     },
@@ -143,13 +152,17 @@ const postForm = () => {
   } else {
     if (!emailRegex.test(email)) {
       errorEmail();
-    } else if (!classicRegex.test(prenom)) {
+    }
+    if (!classicRegex.test(prenom)) {
       errorPrenom();
-    } else if (!classicRegex.test(nom)) {
+    }
+    if (!classicRegex.test(nom)) {
       errorNom();
-    } else if (!classicRegex.test(ville)) {
+    }
+    if (!classicRegex.test(ville)) {
       errorVille();
-    } else if (!adresseRegex.test(adresse)) {
+    }
+    if (!adresseRegex.test(adresse)) {
       errorAdress();
     }
   }
