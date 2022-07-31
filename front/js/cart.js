@@ -10,29 +10,64 @@ if (!kanapList) {
     fetch("http://localhost:3000/api/products/" + kanapList[i].idKanap)
       .then((response) => response.json())
       .then((data) => {
-        const panierCard = ` <article class="cart__item" data-id="{${kanapList[i].idKanap}}" data-color="{${kanapList[i].colorKanap}}">
-        <div class="cart__item__img">
-          <img src="${data.imageUrl}" alt="Photographie d'un canapé">
-        </div>
-        <div class="cart__item__content">
-          <div class="cart__item__content__description">
-            <h2>${data.name}</h2>
-            <p>${kanapList[i].colorKanap}</p>
-            <p>${data.price} €</p>
-          </div>
-          <div class="cart__item__content__settings">
-            <div class="cart__item__content__settings__quantity">
-              <p>Qté :${kanapList[i].qtyKanap} </p>
-              <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${kanapList[i].qtyKanap}">
-            </div>
-            <div class="cart__item__content__settings__delete">
-              <p class="deleteItem">Supprimer</p>
-            </div>
-          </div>
-        </div>
-      </article>`;
+        const panierCard = ` <article class="cart__item" data-id="${kanapList[i].idKanap}" data-color="${kanapList[i].colorKanap}">
+                <div class="cart__item__img">
+                  <img src="${data.imageUrl}" alt="Photographie d'un canapé">
+                </div>
+                <div class="cart__item__content">
+                  <div class="cart__item__content__description">
+                    <h2>${data.name}</h2>
+                    <p>${kanapList[i].colorKanap}</p>
+                    <p>${data.price} €</p>
+                  </div>
+                  <div class="cart__item__content__settings">
+                    <div class="cart__item__content__settings__quantity">
+                      <p>Qté :${kanapList[i].qtyKanap} </p>
+                      <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${kanapList[i].qtyKanap}">
+                    </div>
+                    <div class="cart__item__content__settings__delete">
+                      <p class="deleteItem">Supprimer</p>
+                    </div>
+                  </div>
+                </div>
+              </article>`;
         const elem = document.querySelector(".cart");
         elem.insertAdjacentHTML("afterbegin", panierCard);
+        const deleteButton = document.querySelector(
+          `.cart__item[data-id="${kanapList[i].idKanap}"][data-color="${kanapList[i].colorKanap}"] .deleteItem`
+        );
+        deleteButton.addEventListener("click", (e) => {
+          e.preventDefault();
+          const idKanapRemove = kanapList[i].idKanap;
+          const colorKanapRemove = kanapList[i].colorKanap;
+          let kanapListRemove = JSON.parse(localStorage.getItem("cart"));
+          var kanapFilter = kanapListRemove.filter(
+            (kanap) =>
+              kanap.idKanap != idKanapRemove &&
+              kanap.colorKanap != colorKanapRemove
+          );
+          localStorage.setItem("cart", JSON.stringify(kanapFilter));
+          const elemToRemove = document.querySelector(
+            `.cart__item[data-id="${kanapList[i].idKanap}"][data-color="${kanapList[i].colorKanap}"]`
+          );
+          elemToRemove.remove();
+        });
+        const el = document.querySelector(
+          `.cart__item[data-id="${kanapList[i].idKanap}"][data-color="${kanapList[i].colorKanap}"] .itemQuantity`
+        );
+        el.addEventListener("input", (e) => {
+          e.preventDefault();
+          let qtyIrt = el.value;
+          const KanapId = kanapList[i].idKanap;
+          //   const KanapQty = kanapList[i].qtyKanap;
+          console.log("qsd:", kanapList);
+          var kanapFilter = kanapList.filter(
+            (kanap) => kanap.idKanap == KanapId
+          );
+          kanapFilter[0].qtyKanap == qtyIrt;
+          // changer la valeur du LS
+          console.log("oo", kanapFilter[0].qtyKanap);
+        });
       });
   }
 }
@@ -41,46 +76,28 @@ if (!kanapList) {
 }
 
 // ----- update le cart
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("dom loaded");
-  const deleteFunction = () => {
-    function displayDate() {
-      alert("ok !");
-    }
-    let deleteButton = document.querySelectorAll(
-      ".cart__item__content__settings__delete p"
-    )[0];
-    deleteButton.addEventListener("click", displayDate);
-  };
-  deleteFunction();
-});
 
 // formulaire
 // ------------------------------------
 
 // function error ------------------------------------
 const errorPrenom = () => {
-  console.log("errorPrenom !!!");
   const errorMsgPrenom = document.getElementById("firstNameErrorMsg");
   errorMsgPrenom.innerHTML = "Erreur de saisie";
 };
 const errorNom = () => {
-  console.log("errorNom !!!");
   const errorMsgNom = document.getElementById("lastNameErrorMsg");
   errorMsgNom.innerHTML = "Erreur de saisie";
 };
 const errorAdress = () => {
-  console.log("errorAdress !!!");
   const errorMsgAdress = document.getElementById("addressErrorMsg");
   errorMsgAdress.innerHTML = "Erreur de saisie";
 };
 const errorVille = () => {
-  console.log("errorVille !!!");
   const errorMsgVille = document.getElementById("cityErrorMsg");
   errorMsgVille.innerHTML = "Erreur de saisie";
 };
 const errorEmail = () => {
-  console.log("errorEmail !!!");
   const errorMsgEmail = document.getElementById("emailErrorMsg");
   errorMsgEmail.innerHTML = "Erreur de saisie";
 };
@@ -88,7 +105,6 @@ const errorEmail = () => {
 // function POST
 
 const postRequest = () => {
-  console.log("postREquest //:");
   let form = document.querySelector(".cart__order__form");
   let prenom = form.firstName.value;
   let nom = form.lastName.value;
@@ -115,9 +131,7 @@ const postRequest = () => {
     },
   })
     .then((response) => response.json())
-    .then(() => {
-      console.log("FETCH OK");
-    })
+
     .catch((error) => {
       console.log(error);
     });
@@ -141,28 +155,28 @@ const postForm = () => {
   let adresseRegex = new RegExp(
     "^[0-9]{1,3}(?:(?:[,. ]){1}[-a-zA-Zàâäéèêëïîôöùûüç]+)+"
   );
-  if (
-    emailRegex.test(email) &&
-    classicRegex.test(prenom) &&
-    classicRegex.test(nom) &&
-    classicRegex.test(ville) &&
-    adresseRegex.test(adresse)
-  ) {
+
+  var emailValid = emailRegex.test(email);
+  var prenomValid = classicRegex.test(prenom);
+  var nomValid = classicRegex.test(nom);
+  var villeValid = classicRegex.test(ville);
+  var adresseValid = adresseRegex.test(adresse);
+  if (emailValid && prenomValid && nomValid && villeValid && adresseValid) {
     postRequest();
   } else {
-    if (!emailRegex.test(email)) {
+    if (!emailValid) {
       errorEmail();
     }
-    if (!classicRegex.test(prenom)) {
+    if (!prenomValid) {
       errorPrenom();
     }
-    if (!classicRegex.test(nom)) {
+    if (!nomValid) {
       errorNom();
     }
-    if (!classicRegex.test(ville)) {
+    if (!villeValid) {
       errorVille();
     }
-    if (!adresseRegex.test(adresse)) {
+    if (!adresseValid) {
       errorAdress();
     }
   }
@@ -174,5 +188,26 @@ order.addEventListener("click", (e) => {
   postForm();
 });
 
-// -------------------------------------------
-// -------------------------------------------
+// ----- TOTAL ---------
+const totalArticles = document.getElementById("totalQuantity");
+totalArticles.innerHTML = kanapList.length;
+
+const totalPrice = document.getElementById("totalPrice");
+let priceT = kanapList.map((item) => {
+  return parseInt(item.priceKanap, 10);
+});
+
+let quantityT = kanapList.map((item) => {
+  return parseInt(item.qtyKanap, 10);
+});
+const totalNumber = priceT.reduce((a, value) => {
+  return a + value;
+}, 0);
+
+totalPrice.innerHTML = totalNumber;
+
+for (let i = 0; i < kanapList.length; i++) {
+  var qtyNumber = parseInt(kanapList[i].qtyKanap);
+  var priceN = parseInt(kanapList[i].priceKanap);
+  var totalT = priceN * qtyNumber;
+}
