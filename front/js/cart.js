@@ -44,7 +44,18 @@ if (!kanapList) {
                     const elemToRemove = document.querySelector(`.cart__item[data-id="${kanapList[i].idKanap}"][data-color="${kanapList[i].colorKanap}"]`);
                     elemToRemove.remove();
                 });
-                console.log(deleteButton);
+                const el = document.querySelector(`.cart__item[data-id="${kanapList[i].idKanap}"][data-color="${kanapList[i].colorKanap}"] .itemQuantity`);
+                el.addEventListener('input', (e) => {
+                    e.preventDefault();
+                    let qtyIrt = el.value;
+                    const KanapId = kanapList[i].idKanap;
+                    //   const KanapQty = kanapList[i].qtyKanap;
+                    console.log('qsd:', kanapList);
+                    var kanapFilter = kanapList.filter((kanap) => kanap.idKanap == KanapId);
+                    kanapFilter[0].qtyKanap == qtyIrt;
+                    // changer la valeur du LS
+                    console.log('oo', kanapFilter[0].qtyKanap);
+                });
             });
     }
 }
@@ -59,27 +70,22 @@ if (!kanapList) {
 
 // function error ------------------------------------
 const errorPrenom = () => {
-    console.log('errorPrenom !!!');
     const errorMsgPrenom = document.getElementById('firstNameErrorMsg');
     errorMsgPrenom.innerHTML = 'Erreur de saisie';
 };
 const errorNom = () => {
-    console.log('errorNom !!!');
     const errorMsgNom = document.getElementById('lastNameErrorMsg');
     errorMsgNom.innerHTML = 'Erreur de saisie';
 };
 const errorAdress = () => {
-    console.log('errorAdress !!!');
     const errorMsgAdress = document.getElementById('addressErrorMsg');
     errorMsgAdress.innerHTML = 'Erreur de saisie';
 };
 const errorVille = () => {
-    console.log('errorVille !!!');
     const errorMsgVille = document.getElementById('cityErrorMsg');
     errorMsgVille.innerHTML = 'Erreur de saisie';
 };
 const errorEmail = () => {
-    console.log('errorEmail !!!');
     const errorMsgEmail = document.getElementById('emailErrorMsg');
     errorMsgEmail.innerHTML = 'Erreur de saisie';
 };
@@ -87,7 +93,6 @@ const errorEmail = () => {
 // function POST
 
 const postRequest = () => {
-    console.log('postREquest //:');
     let form = document.querySelector('.cart__order__form');
     let prenom = form.firstName.value;
     let nom = form.lastName.value;
@@ -114,9 +119,7 @@ const postRequest = () => {
         },
     })
         .then((response) => response.json())
-        .then(() => {
-            console.log('FETCH OK');
-        })
+
         .catch((error) => {
             console.log(error);
         });
@@ -169,5 +172,26 @@ order.addEventListener('click', (e) => {
     postForm();
 });
 
-// -------------------------------------------
-// -------------------------------------------
+// ----- TOTAL ---------
+const totalArticles = document.getElementById('totalQuantity');
+totalArticles.innerHTML = kanapList.length;
+
+const totalPrice = document.getElementById('totalPrice');
+let priceT = kanapList.map((item) => {
+    return parseInt(item.priceKanap, 10);
+});
+
+let quantityT = kanapList.map((item) => {
+    return parseInt(item.qtyKanap, 10);
+});
+const totalNumber = priceT.reduce((a, value) => {
+    return a + value;
+}, 0);
+
+totalPrice.innerHTML = totalNumber;
+
+for (let i = 0; i < kanapList.length; i++) {
+    var qtyNumber = parseInt(kanapList[i].qtyKanap);
+    var priceN = parseInt(kanapList[i].priceKanap);
+    var totalT = priceN * qtyNumber;
+}
