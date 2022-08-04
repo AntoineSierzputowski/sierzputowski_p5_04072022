@@ -1,3 +1,5 @@
+console.log("producttest file");
+
 const idProduct = new URL(window.location.href).searchParams.get("id");
 const apiUrl = "http://localhost:3000/api/products/";
 
@@ -9,7 +11,6 @@ let imgProduct = document.querySelector(".item__img");
 let img = document.createElement("img");
 imgProduct.appendChild(img);
 
-console.log("getARtcile");
 async function getKanap() {
   await fetch(apiUrl + idProduct)
     .then((product) => product.json())

@@ -1,3 +1,5 @@
+console.log("product file");
+
 const idProduct = new URL(window.location.href).searchParams.get("id");
 
 //Récupération des sélecteurs pour les futurs modifications

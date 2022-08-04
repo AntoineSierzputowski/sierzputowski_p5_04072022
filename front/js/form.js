@@ -166,3 +166,42 @@ myForm.addEventListener("submit", function (e) {
       console.log("ERROR:" + error);
     });
 });
+// ----------------------------
+const el = document.querySelector(
+  `.cart__item[data-id="${kanapList[i].idKanap}"][data-color="${kanapList[i].colorKanap}"] .itemQuantity`
+);
+el.addEventListener("input", (e) => {
+  e.preventDefault();
+  let qtyIrt = el.value;
+  const KanapId = kanapList[i].idKanap;
+  //   const KanapQty = kanapList[i].qtyKanap;
+  console.log("qsd:", kanapList);
+  var kanapFilter = kanapList.filter((kanap) => kanap.idKanap == KanapId);
+  let qtyBeforeModif = kanapFilter[0].qtyKanap;
+  kanapFilter[0].qtyKanap = qtyIrt;
+  // changer la valeur du LS
+
+  localStorage.setItem("cart", kanapList);
+
+  // je recupere mon article du DOM
+
+  const priceElement = document.querySelector(
+    `span[data-id="price-${kanapList[i].idKanap}-${kanapList[i].colorKanap}"]`
+  );
+  let price = parseInt(priceElement.innerHTML);
+
+  const totalPrice = document.getElementById("totalPrice");
+  let totalPriceBeforeModif = parseInt(totalPrice.innerHTML);
+
+  let newTotalPrice =
+    totalPriceBeforeModif - price * qtyBeforeModif + price * qtyIrt;
+  totalPrice.innerHTML = newTotalPrice;
+});
+
+let new_price_k = qtyIrt * price_k_p;
+document.getElementById("totalPrice").innerHTML =
+  priceTotal - price_k_base + new_price_k;
+
+// Insert your code here
+
+// -------

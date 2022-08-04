@@ -1,12 +1,16 @@
 let kanapList = JSON.parse(localStorage.getItem("cart"));
 
-if (!kanapList) {
-  const elemPanierVide = `<div style="display:flex; justify-content:center"><p style="font-size:40px; padding: 30px">Votre panier est vide</p> <img src="https://nitter.net/pic/ext_tw_video_thumb%2F1491200678936592388%2Fpu%2Fimg%2F24grblv5PvgI9BI5.jpg"/></div>`;
+if (!kanapList || kanapList.length == 0) {
+  const elemPanierVide = `<div style="display:flex; justify-content:center"><p style="font-size:40px; padding: 30px">Votre panier est vide</p> <iframe src="https://giphy.com/embed/uLMwmBDrT7Y7JNiA8x" width="480" height="290" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/pushat-kanye-west-diet-coke-pusha-t-uLMwmBDrT7Y7JNiA8x">via GIPHY</a></p></div>`;
   const elem = document.querySelector("#cartAndFormContainer h1");
   elem.insertAdjacentHTML("afterend", elemPanierVide);
   document.querySelector(".cart").remove();
 } else {
+  let nbArticles = 0;
+  const totalPrice = document.getElementById("totalPrice");
+  totalPrice.innerHTML = "0";
   for (let i = 0; i < kanapList.length; i++) {
+    nbArticles += kanapList[i].qtyKanap;
     fetch("http://localhost:3000/api/products/" + kanapList[i].idKanap)
       .then((response) => response.json())
       .then((data) => {
@@ -18,11 +22,11 @@ if (!kanapList) {
                   <div class="cart__item__content__description">
                     <h2>${data.name}</h2>
                     <p>${kanapList[i].colorKanap}</p>
-                    <p>${data.price} €</p>
+                    <p id="price_p" data-id="price-${kanapList[i].idKanap}-${kanapList[i].colorKanap}">${data.price} €</p>
                   </div>
                   <div class="cart__item__content__settings">
                     <div class="cart__item__content__settings__quantity">
-                      <p>Qté :${kanapList[i].qtyKanap} </p>
+                      <p>Qté : </p>
                       <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${kanapList[i].qtyKanap}">
                     </div>
                     <div class="cart__item__content__settings__delete">
@@ -33,9 +37,18 @@ if (!kanapList) {
               </article>`;
         const elem = document.querySelector(".cart");
         elem.insertAdjacentHTML("afterbegin", panierCard);
+
+        // mise à jour du prix total
+        // ajouter le nombre d'articles total dans le DOM
+        const totalPrice = document.getElementById("totalPrice");
+        let actualTotalPrice = parseInt(totalPrice.innerHTML);
+        totalPrice.innerHTML =
+          actualTotalPrice + data.price * kanapList[i].qtyKanap;
+
         const deleteButton = document.querySelector(
           `.cart__item[data-id="${kanapList[i].idKanap}"][data-color="${kanapList[i].colorKanap}"] .deleteItem`
         );
+        // remove article
         deleteButton.addEventListener("click", (e) => {
           e.preventDefault();
           const idKanapRemove = kanapList[i].idKanap;
@@ -51,22 +64,44 @@ if (!kanapList) {
             `.cart__item[data-id="${kanapList[i].idKanap}"][data-color="${kanapList[i].colorKanap}"]`
           );
           elemToRemove.remove();
+          // update prix -------
+          location.reload();
         });
-        const el = document.querySelector(
+        // ------
+        const elInput = document.querySelector(
           `.cart__item[data-id="${kanapList[i].idKanap}"][data-color="${kanapList[i].colorKanap}"] .itemQuantity`
         );
-        el.addEventListener("input", (e) => {
+        const price_k_p = parseInt(
+          document.getElementById("price_p").textContent.slice(0, -1)
+        );
+
+        const price_k_base = parseInt(elInput.value) * price_k_p;
+        const priceTotal = parseInt(
+          document.getElementById("totalPrice").textContent
+        );
+        // quantité d'article au chargement de la page
+        elInput.addEventListener("input", (e) => {
           e.preventDefault();
-          let qtyIrt = el.value;
+          let qtyIrt = elInput.value;
           const KanapId = kanapList[i].idKanap;
-          //   const KanapQty = kanapList[i].qtyKanap;
-          console.log("qsd:", kanapList);
           var kanapFilter = kanapList.filter(
             (kanap) => kanap.idKanap == KanapId
           );
-          kanapFilter[0].qtyKanap == qtyIrt;
-          // changer la valeur du LS
-          console.log("oo", kanapFilter[0].qtyKanap);
+          kanapFilter[0].qtyKanap = qtyIrt;
+          localStorage.setItem("cart", JSON.stringify(kanapList));
+          // -------------
+
+          // calculer nouveau montant du panier qu'on touche --> price * qty
+          let total = 0;
+          for (let i = 0; i < kanapList.length; i++) {
+            fetch("http://localhost:3000/api/products/" + kanapList[i].idKanap)
+              .then((response) => response.json())
+              .then((data) => {
+                total += data.price * kanapList[i].qtyKanap;
+                console.log("prix totzl:", total); // pq retourne 2 valeurs ?
+                totalPrice.innerHTML = total;
+              });
+          }
         });
       });
   }
@@ -120,17 +155,29 @@ const postRequest = () => {
     email: email,
   };
 
-  var products = JSON.parse(localStorage.getItem("cart"));
+  var products = [];
+  for (let i = 0; i < kanapList.length; i++) {
+    var id = kanapList[i].idKanap;
+    products.push(id);
+  }
+
+  var body = {
+    contact: contact,
+    products: products,
+  };
 
   fetch("http://localhost:3000/api/products/order", {
     method: "POST",
-    body: JSON.stringify(contact),
-    products,
+    body: JSON.stringify(body),
     headers: {
       "Content-Type": "application/json",
     },
   })
     .then((response) => response.json())
+    .then((data) => {
+      localStorage.setItem("orderId", data.orderId);
+      document.location.href = "confirmation.html?id=" + data.orderId;
+    })
 
     .catch((error) => {
       console.log(error);
@@ -187,27 +234,3 @@ order.addEventListener("click", (e) => {
   e.preventDefault();
   postForm();
 });
-
-// ----- TOTAL ---------
-const totalArticles = document.getElementById("totalQuantity");
-totalArticles.innerHTML = kanapList.length;
-
-const totalPrice = document.getElementById("totalPrice");
-let priceT = kanapList.map((item) => {
-  return parseInt(item.priceKanap, 10);
-});
-
-let quantityT = kanapList.map((item) => {
-  return parseInt(item.qtyKanap, 10);
-});
-const totalNumber = priceT.reduce((a, value) => {
-  return a + value;
-}, 0);
-
-totalPrice.innerHTML = totalNumber;
-
-for (let i = 0; i < kanapList.length; i++) {
-  var qtyNumber = parseInt(kanapList[i].qtyKanap);
-  var priceN = parseInt(kanapList[i].priceKanap);
-  var totalT = priceN * qtyNumber;
-}

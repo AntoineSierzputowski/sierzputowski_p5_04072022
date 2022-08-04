@@ -1,3 +1,4 @@
+console.log("addToCart file");
 function addToCart() {
   const colorChoice = document.querySelector("#colors");
   const quantityChoice = document.querySelector("#quantity");
@@ -26,6 +27,7 @@ function addToCart() {
         let newQuantite = parseInt(qtyKanap) + parseInt(resultFind.qtyKanap);
         resultFind.qtyKanap = newQuantite;
         localStorage.setItem("cart", JSON.stringify(productCart));
+        alert("Article ajouté au panier");
       }
 
       // si find retourne rien --> on rajoute le kanap dans le ls
@@ -54,6 +56,7 @@ function addToCart() {
 
         let objCart = JSON.stringify(productCart);
         localStorage.setItem("cart", objCart);
+        alert("Article ajouté au panier");
       }
     }
     // si ls est vide --> on rajoute le kanap dans le ls
@@ -72,6 +75,7 @@ function addToCart() {
 
       let objCart = JSON.stringify(productCart);
       localStorage.setItem("cart", objCart);
+      alert("Article ajouté au panier");
     }
   }
 }
