@@ -77,6 +77,10 @@ function addToCart() {
       localStorage.setItem("cart", objCart);
       alert("Article ajouté au panier");
     }
+  } else {
+    alert(
+      "Veuillez sélectionner une couleur et nombre d'articles entre 1 et 100 😓​"
+    );
   }
 }
 

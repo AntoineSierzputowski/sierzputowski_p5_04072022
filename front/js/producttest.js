@@ -1,5 +1,3 @@
-console.log("producttest file");
-
 const idProduct = new URL(window.location.href).searchParams.get("id");
 const apiUrl = "http://localhost:3000/api/products/";
 
