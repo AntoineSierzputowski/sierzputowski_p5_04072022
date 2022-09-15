@@ -6,21 +6,22 @@ if (!kanapList || kanapList.length == 0) {
   elem.insertAdjacentHTML("afterend", elemPanierVide);
   document.querySelector(".cart").remove();
 } else {
+  displayCart(kanapList);
+}
+
+async function displayCart(kanapList) {
   let nbArticles = 0;
   const totalPrice = document.getElementById("totalPrice");
   totalPrice.innerHTML = "0";
   for (let i = 0; i < kanapList.length; i++) {
-    const fetchFunction = async () => {
-      console.log("my fetchFunction");
-      nbArticles += kanapList[i].qtyKanap;
-      await fetch("http://localhost:3000/api/products/" + kanapList[i].idKanap)
-        .then((response) => response.json())
-        // .then((data) => {
-        //   console.log("data: ", data);
-        // }) Pourquoi erreur ?
-        .then((data) => {
-          console.log("data: ", data);
-          const panierCard = ` <article class="cart__item" data-id="${kanapList[i].idKanap}" data-color="${kanapList[i].colorKanap}">
+    let idKanap = kanapList[i].idKanap;
+    nbArticles += kanapList[i].qtyKanap;
+    const response = await fetch(
+      "http://localhost:3000/api/products/" + idKanap
+    );
+    if (response.ok) {
+      const data = await response.json();
+      const panierCard = ` <article class="cart__item" data-id="${kanapList[i].idKanap}" data-color="${kanapList[i].colorKanap}">
                  <div class="cart__item__img">
                    <img src="${data.imageUrl}" alt="Photographie d'un canapé">
                  </div>
@@ -41,83 +42,74 @@ if (!kanapList || kanapList.length == 0) {
                    </div>
                  </div>
                </article>`;
-          const elem = document.querySelector(".cart");
-          elem.insertAdjacentHTML("afterbegin", panierCard);
+      const elem = document.querySelector(".cart");
+      elem.insertAdjacentHTML("afterbegin", panierCard);
 
-          // mise à jour du prix total
-          // ajouter le nombre d'articles total dans le DOM
-          const totalPrice = document.getElementById("totalPrice");
-          let actualTotalPrice = parseInt(totalPrice.innerHTML);
-          totalPrice.innerHTML =
-            actualTotalPrice + data.price * kanapList[i].qtyKanap;
+      // mise à jour du prix total
+      // ajouter le nombre d'articles total dans le DOM
+      const totalPrice = document.getElementById("totalPrice");
+      let actualTotalPrice = parseInt(totalPrice.innerHTML);
+      totalPrice.innerHTML =
+        actualTotalPrice + data.price * kanapList[i].qtyKanap;
 
-          const deleteButton = document.querySelector(
-            `.cart__item[data-id="${kanapList[i].idKanap}"][data-color="${kanapList[i].colorKanap}"] .deleteItem`
-          );
-          // remove article
-          deleteButton.addEventListener("click", (e) => {
-            e.preventDefault();
-            const idKanapRemove = kanapList[i].idKanap;
-            const colorKanapRemove = kanapList[i].colorKanap;
-            let kanapListRemove = JSON.parse(localStorage.getItem("cart"));
-            var kanapFilter = kanapListRemove.filter(
-              (kanap) =>
-                kanap.idKanap != idKanapRemove &&
-                kanap.colorKanap != colorKanapRemove
-            );
-            localStorage.setItem("cart", JSON.stringify(kanapFilter));
-            const elemToRemove = document.querySelector(
-              `.cart__item[data-id="${kanapList[i].idKanap}"][data-color="${kanapList[i].colorKanap}"]`
-            );
-            elemToRemove.remove();
-            // update prix -------
-            location.reload();
-          });
-          // ------
-          const elInput = document.querySelector(
-            `.cart__item[data-id="${kanapList[i].idKanap}"][data-color="${kanapList[i].colorKanap}"] .itemQuantity`
-          );
-          const price_k_p = parseInt(
-            document.getElementById("price_p").textContent.slice(0, -1)
-          );
+      const deleteButton = document.querySelector(
+        `.cart__item[data-id="${kanapList[i].idKanap}"][data-color="${kanapList[i].colorKanap}"] .deleteItem`
+      );
+      // remove article
+      deleteButton.addEventListener("click", (e) => {
+        e.preventDefault();
+        const idKanapRemove = kanapList[i].idKanap;
+        const colorKanapRemove = kanapList[i].colorKanap;
+        let kanapListRemove = JSON.parse(localStorage.getItem("cart"));
+        var kanapFilter = kanapListRemove.filter(
+          (kanap) =>
+            kanap.idKanap != idKanapRemove &&
+            kanap.colorKanap != colorKanapRemove
+        );
+        localStorage.setItem("cart", JSON.stringify(kanapFilter));
+        const elemToRemove = document.querySelector(
+          `.cart__item[data-id="${kanapList[i].idKanap}"][data-color="${kanapList[i].colorKanap}"]`
+        );
+        elemToRemove.remove();
+        // update prix -------
+        location.reload();
+      });
+      // ------
+      const elInput = document.querySelector(
+        `.cart__item[data-id="${kanapList[i].idKanap}"][data-color="${kanapList[i].colorKanap}"] .itemQuantity`
+      );
+      const price_k_p = parseInt(
+        document.getElementById("price_p").textContent.slice(0, -1)
+      );
 
-          const price_k_base = parseInt(elInput.value) * price_k_p;
-          const priceTotal = parseInt(
-            document.getElementById("totalPrice").textContent
-          );
-          // quantité d'article au chargement de la page
-          elInput.addEventListener("input", (e) => {
-            e.preventDefault();
-            let qtyIrt = elInput.value;
-            const KanapId = kanapList[i].idKanap;
-            var kanapFilter = kanapList.filter(
-              (kanap) => kanap.idKanap == KanapId
-            );
-            kanapFilter[0].qtyKanap = qtyIrt;
-            localStorage.setItem("cart", JSON.stringify(kanapList));
-            // -------------
+      const price_k_base = parseInt(elInput.value) * price_k_p;
+      const priceTotal = parseInt(
+        document.getElementById("totalPrice").textContent
+      );
+      // quantité d'article au chargement de la page
+      elInput.addEventListener("input", (e) => {
+        e.preventDefault();
+        let qtyIrt = elInput.value;
+        const KanapId = kanapList[i].idKanap;
+        var kanapFilter = kanapList.filter((kanap) => kanap.idKanap == KanapId);
+        kanapFilter[0].qtyKanap = qtyIrt;
+        localStorage.setItem("cart", JSON.stringify(kanapList));
+        // -------------
 
-            // calculer nouveau montant du panier qu'on touche --> price * qty
-            let total = 0;
-            for (let i = 0; i < kanapList.length; i++) {
-              fetch(
-                "http://localhost:3000/api/products/" + kanapList[i].idKanap
-              )
-                .then((response) => response.json())
-                .then((data) => {
-                  total += data.price * kanapList[i].qtyKanap;
-                  console.log("prix totzl:", total); // pq retourne 2 valeurs ?
-                  totalPrice.innerHTML = total;
-                });
-            }
-          });
-        });
-    };
-    fetchFunction();
+        // calculer nouveau montant du panier qu'on touche --> price * qty
+        let total = 0;
+        for (let i = 0; i < kanapList.length; i++) {
+          fetch("http://localhost:3000/api/products/" + kanapList[i].idKanap)
+            .then((response) => response.json())
+            .then((data) => {
+              total += data.price * kanapList[i].qtyKanap;
+              console.log("prix totzl:", total); // pq retourne 2 valeurs ?
+              totalPrice.innerHTML = total;
+            });
+        }
+      });
+    }
   }
-}
-
-{
 }
 
 // ----- update le cart
